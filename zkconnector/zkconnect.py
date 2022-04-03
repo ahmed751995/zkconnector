@@ -1,7 +1,6 @@
 import requests
 import json
 import time
-import frappe
 from zk import ZK, const
 
 
@@ -60,7 +59,7 @@ class ZKConnect:
         return self.live
 
         
-    def live_capture(self, device_name, api_key='', api_secret=''):
+    def live_capture(self, device_name, url, api_key='', api_secret=''):
         self.live = True
         for attendance in self.conn.live_capture():
             print("tracking in progress")
@@ -73,7 +72,7 @@ class ZKConnect:
                 
                 headers = get_headers(api_key, api_secret)
                 
-                res = post_req('{url}/api/resource/ZKLogs', headers, payload)
+                res = post_req(f'{url}/api/resource/ZKLogs', headers, payload)
 
         self.live = False
 
