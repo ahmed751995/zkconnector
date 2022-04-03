@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import frappe
 from zk import ZK, const
 
 
@@ -72,7 +73,7 @@ class ZKConnect:
                 
                 headers = get_headers(api_key, api_secret)
                 
-                res = post_req('http://develop.test:8000/api/resource/ZKLogs', headers, payload)
+                res = post_req('{url}/api/resource/ZKLogs', headers, payload)
 
         self.live = False
 
