@@ -66,14 +66,15 @@ def connect_devices():
     
     for conn in connections:
         try:
-            if not connections[conn].is_connected():
-                print("device connected and conn is ", conn)
-                connections[conn].make_connection()
+            # if not connections[conn].is_connected():
+            print("device connected and conn is ", conn)
+            connections[conn].make_connection()
         except:
             frappe.throw(f"Can't connect to device {conn}")
     
     for conn in connections:
-        print("connection", connections[conn].is_live())
+        print("connection live", connections[conn].is_live())
+        print("connection connected", connections[conn].is_connected())
 
         if connections[conn].is_connected() and not connections[conn].is_live():
 
