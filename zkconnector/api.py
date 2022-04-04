@@ -7,6 +7,24 @@ connections = {}
 api_key = None
 api_secret = None
 url = frappe.utils.get_url()
+
+@frappe.whitelist()
+def check_status():
+    global connections
+    if len(connections.keys()) == 0:
+        devices = frappe.get_all('ZKDevices')
+        for device in devices:
+            zk_device = frappe.get_doc('ZKDevices', device)
+            zk_device.status = "Disconnected"
+            zk_device.save()
+    else:
+        for conn in connections:
+            zk_device = frappe.get_doc('ZKDevices', conn)
+            if not connections[conn].is_connected():
+                zk_device.status = "Disconnected"
+                zk_device.save()
+    frappe.db.commit()
+
 @frappe.whitelist()
 def sync_logs():
     global api_secret
@@ -61,6 +79,10 @@ def connect_devices():
     for conn in connections:
         try:
             connections[conn].make_connection()
+            zk_device = frappe.get_doc('ZKDevices', conn)
+            zk_device.status = "Connected"
+            zk_device.save()
+            frappe.db.commit()
         except:
             frappe.throw(f"Can't connect to device {conn}")
     
@@ -69,3 +91,19 @@ def connect_devices():
         if connections[conn].is_connected() and not connections[conn].is_live():
 
             Thread(target=connections[conn].live_capture, args=[conn, url, api_key, api_secret]).start()
+
+
+
+@frappe.whitelist()
+def disconnect_devices():
+
+    for conn in connections:
+        try:
+            connections[conn].kill_connection()
+            zk_device = frappe.get_doc('ZKDevices', conn)
+            zk_device.status = "Disconnected"
+            zk_device.save()
+            frappe.db.commit()
+            
+        except:
+            frappe.throw("Please check your server")

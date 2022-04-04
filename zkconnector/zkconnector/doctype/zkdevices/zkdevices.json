@@ -10,7 +10,8 @@
   "device_name",
   "ip",
   "port",
-  "password"
+  "password",
+  "status"
  ],
  "fields": [
   {
@@ -34,11 +35,19 @@
    "fieldname": "password",
    "fieldtype": "Data",
    "label": "Password"
+  },
+  {
+   "default": "Disconnected",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Connected\nDisconnected"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-31 11:13:01.169747",
+ "modified": "2022-04-03 14:37:17.349476",
  "modified_by": "Administrator",
  "module": "Zkconnector",
  "name": "ZKDevices",
