@@ -49,7 +49,7 @@ def sync_logs():
                 
                 for log in logs[::-1]:
                     log_d, log_t = log.timestamp.isoformat().split("T")
-
+                    
                     if parser.parse(str(log_d)) == parser.parse(str(last_saved_log.date)) and\
                         parser.parse(str(log_t)) ==  parser.parse(str(last_saved_log.time)):
                         break
@@ -70,27 +70,27 @@ def connect_devices():
 
     devices = frappe.get_all('ZKDevices')
     for device in devices:
-        # print(device)
         zk_device = frappe.get_doc('ZKDevices', device)
         if zk_device.name not in connections.keys():
-            connections[zk_device.name] = ZKConnect(zk_device.ip, int(zk_device.port),\
+            connections[device.name] = ZKConnect(zk_device.ip, int(zk_device.port),\
                                                     zk_device.password)
     
     for conn in connections:
         try:
-            connections[conn].make_connection()
+            if not connections[conn].is_connected():
+                connections[conn].make_connection()
             zk_device = frappe.get_doc('ZKDevices', conn)
             zk_device.status = "Connected"
             zk_device.save()
             frappe.db.commit()
+            if not connections[conn].is_live():
+
+                Thread(target=connections[conn].live_capture, args=[conn, url, api_key, api_secret]).start()
         except:
             frappe.throw(f"Can't connect to device {conn}")
     
-    for conn in connections:
        
-        if connections[conn].is_connected() and not connections[conn].is_live():
-
-            Thread(target=connections[conn].live_capture, args=[conn, url, api_key, api_secret]).start()
+       
 
 
 

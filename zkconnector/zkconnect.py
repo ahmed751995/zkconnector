@@ -9,7 +9,7 @@ class ZKConnect:
         self.ip = ip
         self.port = port
         self.password = password
-        self.conn = None
+        self.zk = None
         self.close = False
         self.live = False
 
@@ -21,14 +21,14 @@ class ZKConnect:
 
     def make_connection(self):
         try:
-            zk = ZK(
+            self.zk = ZK(
                 self.ip,
                 self.port,
                 timeout=5,
                 password=self.password,
                 force_udp=True,
                 ommit_ping=False)
-            self.conn = zk.connect()
+            self.zk.connect()
             self.close = False
 
         except BaseException:
@@ -43,17 +43,18 @@ class ZKConnect:
     def kill_connection(self):
         self.close = True
         while(self.live):
-            time.sleep(.1)
-        self.conn.disconnect()
+            time.sleep(.2)
+        self.zk.disconnect()
 
     def is_connected(self):
-        if self.conn == None:
+        try:
+            self.zk.connect()
+            return True
+        except:
             return False
-        return self.conn.is_connect
-
 
     def get_logs(self):
-        return self.conn.get_attendance()
+        return self.zk.get_attendance()
     
     def is_live(self):
         return self.live
@@ -61,9 +62,10 @@ class ZKConnect:
         
     def live_capture(self, device_name, url, api_key='', api_secret=''):
         self.live = True
-        for attendance in self.conn.live_capture():
+        self.close = False
+        for attendance in self.zk.live_capture():
             print("tracking in progress")
-            if self.close:
+            if self.close or not self.is_connected():
                 break
 
             if attendance:
